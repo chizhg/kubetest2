@@ -98,21 +98,35 @@ func (d *Deployer) CreateClusters() error {
 		}
 
 		r := retryCount
-		if err := eg.Wait(); err != nil {
-			if d.isRetryableError(err) {
-				go func() {
-					d.DeleteClusters(r)
-					if err := d.DeleteSubnets(r); err != nil {
-						log.Printf("Warning: error encountered deleting subnets: %v", err)
-					}
-				}()
-			} else {
-				return fmt.Errorf("error creating clusters: %v", err)
-			}
-
+		eg.Wait()
+		if retryCount == 0 {
+			klog.V(1).Info("########## simulated cluster retrying ############")
+			go func() {
+				d.DeleteClusters(r)
+				if err := d.DeleteSubnets(r); err != nil {
+					log.Printf("Warning: error encountered deleting subnets: %v", err)
+				}
+			}()
 		} else {
 			return nil
 		}
+		// r := retryCount
+
+		// if err := eg.Wait(); err != nil {
+		// 	if d.isRetryableError(err) {
+		// 		go func() {
+		// 			d.DeleteClusters(r)
+		// 			if err := d.DeleteSubnets(r); err != nil {
+		// 				log.Printf("Warning: error encountered deleting subnets: %v", err)
+		// 			}
+		// 		}()
+		// 	} else {
+		// 		return fmt.Errorf("error creating clusters: %v", err)
+		// 	}
+
+		// } else {
+		// 	return nil
+		// }
 	}
 
 	return nil

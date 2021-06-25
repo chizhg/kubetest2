@@ -54,6 +54,7 @@ func (d *Deployer) Initialize() error {
 		// Compile the retryable error patterns as regex objects.
 		d.retryableErrorPatternsCompiled = make([]*regexp.Regexp, len(d.RetryableErrorPatterns))
 		for i, regxString := range d.RetryableErrorPatterns {
+			klog.V(1).Infof("###### regex string is %q", regxString)
 			var err error
 			d.retryableErrorPatternsCompiled[i], err = regexp.Compile(regxString)
 			if err != nil {
